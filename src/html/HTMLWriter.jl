@@ -77,6 +77,7 @@ using ..Documenter: Documenter, Default, Remotes
 using ...JSDependencies: JSDependencies
 using ...DOM: DOM, @tags
 using ...MDFlatten: mdflatten
+using pandoc_jll
 
 export HTML
 
@@ -165,6 +166,21 @@ function assetclass(uri)
 end
 
 abstract type MathEngine end
+
+"""
+    MathML()
+
+    No config needed here.
+
+    Using mathml (converting any math expression to mathml on the fly using pandoc)
+    here `pandoc_jll` is used to do the conversion
+"""
+struct MathML <: MathEngine
+    function MathML()
+        new()
+    end
+end
+
 
 """
     KaTeX(config::Dict = <default>, override = false)
@@ -2200,9 +2216,43 @@ end
 
 domify(dctx::DCtx, node::Node, ::MarkdownAST.Emph) = DOM.Tag(:em)(domify(dctx, node.children))
 
-domify(::DCtx, ::Node, m::MarkdownAST.DisplayMath) = DOM.Tag(:p)[".math-container"](string("\\[", m.math, "\\]"))
+function domify(context::DCtx, ::Node, m::MarkdownAST.DisplayMath)
+    # check the context
+    if typeof(context.ctx.settings) == HTML 
+        math_engine = context.ctx.settings.mathengine
+    else
+        error("no settings found, aborting")
+    end 
 
-domify(::DCtx, ::Node, m::MarkdownAST.InlineMath) = DOM.Tag(:span)(string('$', m.math, '$'))
+    if typeof(math_engine)==MathML
+        string_input = string("\\[", m.math, "\\]")
+        output = pandoc() do pandoc_bin
+            read(pipeline(`echo $string_input`, `$(pandoc_bin) -f latex -t html --mathml`),String)
+        end
+        return DOM.Tag(Symbol("#RAW#"))(output)
+    else 
+        return DOM.Tag(:p)[".math-container"](string("\\[", m.math, "\\]"))
+    end
+end
+
+function domify(context::DCtx, ::Node, m::MarkdownAST.InlineMath)
+    # check the context
+    if typeof(context.ctx.settings) == HTML 
+        math_engine = context.ctx.settings.mathengine
+    else
+        error("no settings found, aborting")
+    end 
+    
+    if typeof(math_engine)==MathML
+        string_input = string('$', m.math, '$')
+        output = pandoc() do pandoc_bin
+            read(pipeline(`echo $string_input`, `$(pandoc_bin) -f latex -t html --mathml`),String)
+        end 
+        return DOM.Tag(Symbol("#RAW#"))(output)
+    else
+        return DOM.Tag(:span)(string('$', m.math, '$'))
+    end
+end
 
 domify(::DCtx, ::Node, m::MarkdownAST.LineBreak) = DOM.Tag(:br)()
 # TODO: Implement SoftBreak, Backslash (but they don't appear in standard library Markdown conversions)

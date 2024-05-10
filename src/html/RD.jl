@@ -2,7 +2,7 @@
 module RD
     using JSON: JSON
     using ....Documenter.JSDependencies: RemoteLibrary, Snippet, RequireJS, jsescape, json_jsescape
-    using ..HTMLWriter: KaTeX, MathJax, MathJax2, MathJax3
+    using ..HTMLWriter: KaTeX, MathJax, MathJax2, MathJax3, MathML
 
     const requirejs_cdn = "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"
     const lato = "https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css"
@@ -111,6 +111,9 @@ module RD
             })();
             """
         ))
+    end
+    function mathengine!(r::RequireJS, engine::MathML)
+        # nothing to do here
     end
     mathengine(::RequireJS, ::Nothing) = nothing
 end

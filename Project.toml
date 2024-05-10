@@ -26,6 +26,7 @@ SHA = "ea8e919c-243c-51af-8825-aaa63cd721ce"
 TOML = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Unicode = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
+pandoc_jll = "c5432543-76ad-5c9d-82bf-db097047a5e2"
 
 [compat]
 ANSIColoredPrinters = "0.0.1"

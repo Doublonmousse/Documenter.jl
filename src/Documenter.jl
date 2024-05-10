@@ -92,13 +92,13 @@ import ..HTMLWriter
 end
 
 import .HTMLWriter: HTML, asset
-import .HTMLWriter.RD: KaTeX, MathJax, MathJax2, MathJax3
+import .HTMLWriter.RD: KaTeX, MathJax, MathJax2, MathJax3, MathML
 import .LaTeXWriter: LaTeX
 
 # User Interface.
 # ---------------
 export makedocs, deploydocs, hide, doctest, DocMeta, asset, Remotes,
-    KaTeX, MathJax, MathJax2, MathJax3
+    KaTeX, MathJax, MathJax2, MathJax3, MathML
 
 include("makedocs.jl")
 include("deployconfig.jl")
